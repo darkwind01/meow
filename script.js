@@ -1,6 +1,8 @@
 const spans = document.querySelectorAll('.clanStats span[id^="stats-"]');
 let delay = 0;
-const under5Hours = []; // Lista pentru utilizatorii cu sub 5 ore
+const under5Hours = []; // Lista pentru utilizatorii cu sub 3 ore
+const webhookUrl = 'https://discord.com/api/webhooks/1313218493721608203/Q9lErbjaX--bMoSRmYrmF1GS1zgjprU4nyWYtXBDtP5crvycm1MUQvjLBxkdL3_T7QA4'; // Înlocuiește cu URL-ul webhookului tău
+
 spans.forEach((span) => {
     setTimeout(() => {
         span.click(); // Simulează click pe fiecare element pentru afișare
@@ -44,6 +46,34 @@ spans.forEach((span) => {
     }, delay);
     delay += 500;
 });
+
+// După ce toate datele sunt colectate, trimite mesajul pe Discord
 setTimeout(() => {
     console.log('Utilizatori cu sub 3 ore în ultimele 7 zile:', under5Hours);
+    
+    // Formatează mesajul pentru Discord
+    const message = under5Hours.map(player => 
+        `**Nume:** ${player.username}\n**Ore jucate în ultimele 7 zile:** ${player.hours}\n**Ultima conectare:** ${player.lastLogin}\n`
+    ).join('\n');
+
+    // Trimite mesajul prin webhook
+    if (message) {
+        fetch(webhookUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                content: `📋 **Lista jucătorilor cu sub 3 ore în ultimele 7 zile:**\n\n${message}`
+            })
+        })
+        .then(response => {
+            if (response.ok) {
+                console.log('Mesaj trimis cu succes pe Discord!');
+            } else {
+                console.error('Eroare la trimiterea mesajului:', response.statusText);
+            }
+        })
+        .catch(error => console.error('Eroare:', error));
+    } else {
+        console.log('Nicio informație de trimis.');
+    }
 }, delay + 1000);
