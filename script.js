@@ -1,11 +1,7 @@
 const spans = document.querySelectorAll('.clanStats span[id^="stats-"]');
 let delay = 0;
 const under5Hours = []; // Lista pentru utilizatorii cu sub 3 ore
-const urlParams = new URLSearchParams(window.location.search);
-const webhookUrl = urlParams.get('webhook');  // Preia URL-ul webhook din parametrii URL
-
-// Verifică dacă URL-ul webhook este valid
-if (!webhookUrl || webhookUrl === '#') console.error('URL webhook invalid! Asigură-te că parametru `webhook` este valid.');
+const webhookUrl = 'https://discord.com/api/webhooks/<webhook_id>/<webhook_token>'; // Înlocuiește cu URL-ul webhookului tău
 
 spans.forEach((span) => {
     setTimeout(() => {
@@ -51,29 +47,22 @@ spans.forEach((span) => {
     delay += 500;
 });
 
-// După ce toate datele sunt colectate, trimite mesajul pe Discord
 setTimeout(() => {
     console.log('Utilizatori cu sub 3 ore în ultimele 7 zile:', under5Hours);
     
-    // Verifică dacă există utilizatori
-    if (under5Hours.length === 0) {
-        console.log('Nu sunt utilizatori cu sub 3 ore în ultimele 7 zile.');
-        return;  // Dacă nu sunt utilizatori, oprește execuția
-    }
-
     // Formatează mesajele pentru Discord
     const messageParts = [];
     let currentMessage = '';
-    const maxMessageLength = 2000; // Limita de caractere pentru fiecare mesaj
 
     under5Hours.forEach(player => {
         const playerInfo = `**Nume:** ${player.username}\n**Ore jucate în ultimele 7 zile:** ${player.hours}\n**Ultima conectare:** ${player.lastLogin}\n\n`;
 
-        if ((currentMessage + playerInfo).length > maxMessageLength) {
+        if ((currentMessage + playerInfo).length > 2000) {
             // Dacă adăugarea acestui text ar depăși limita, trimite mesajul curent și începe unul nou
             messageParts.push(currentMessage);
             currentMessage = playerInfo;
         } else {
+            // Adaugă informația la mesajul curent
             currentMessage += playerInfo;
         }
     });
@@ -89,15 +78,14 @@ setTimeout(() => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                content: `📋 **Lista cu jucatorii inactivi #${index + 1}:**\n\n${message}`
+                content: `📋 **Lista parțială ${index + 1}:**\n\n${message}`
             })
         })
-        .then(response => response.json())  // Obține răspunsul complet
-        .then(data => {
-            if (data && data.error) {
-                console.error(`Eroare Discord (mesaj ${index + 1}):`, data.error);
-            } else {
+        .then(response => {
+            if (response.ok) {
                 console.log(`Mesajul ${index + 1} trimis cu succes pe Discord!`);
+            } else {
+                console.error(`Eroare la trimiterea mesajului ${index + 1}:`, response.statusText);
             }
         })
         .catch(error => console.error('Eroare:', error));
