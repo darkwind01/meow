@@ -1,7 +1,7 @@
 const spans = document.querySelectorAll('.clanStats span[id^="stats-"]');
 let delay = 0;
 const under5Hours = [];
-const webhookUrl = 'https://discord.com/api/webhooks/1313218493721608203/Q9lErbjaX--bMoSRmYrmF1GS1zgjprU4nyWYtXBDtP5crvycm1MUQvjLBxkdL3_T7QA4';
+const webhookUrl = 'https://discord.com/api/webhooks/1313227342684094586/VYeig3TWy-DbQsklbnPiJd4Noo9FSSvZoBfUo1HgpUCdV3q_G3cgIqC-Jhw13mqoC3KW';
 spans.forEach((span) => {
     setTimeout(() => {
         span.click();
