@@ -5,7 +5,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const webhookUrl = urlParams.get('webhook');  // Preia URL-ul webhook din parametrii URL
 
 // Verifică dacă URL-ul webhook este valid
-if (!webhookUrl || webhookUrl === '#') return console.error('URL webhook invalid! Asigură-te că parametru `webhook` este valid.');
+if (!webhookUrl || webhookUrl === '#') console.error('URL webhook invalid! Asigură-te că parametru `webhook` este valid.');
 
 spans.forEach((span) => {
     setTimeout(() => {
