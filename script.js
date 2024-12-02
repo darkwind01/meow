@@ -1,27 +1,25 @@
 const spans = document.querySelectorAll('.clanStats span[id^="stats-"]');
 let delay = 0;
-const under5Hours = []; // Lista pentru utilizatorii cu sub 3 ore
-const webhookUrl = 'https://discord.com/api/webhooks/1313218493721608203/Q9lErbjaX--bMoSRmYrmF1GS1zgjprU4nyWYtXBDtP5crvycm1MUQvjLBxkdL3_T7QA4'; // Înlocuiește cu URL-ul webhookului tău
-
+const under5Hours = [];
+const webhookUrl = 'https://discord.com/api/webhooks/1313218493721608203/Q9lErbjaX--bMoSRmYrmF1GS1zgjprU4nyWYtXBDtP5crvycm1MUQvjLBxkdL3_T7QA4';
 spans.forEach((span) => {
     setTimeout(() => {
-        span.click(); // Simulează click pe fiecare element pentru afișare
+        span.click();
         setTimeout(() => {
-            const hoursText = span.textContent.match(/Hours L7:\s*([\d.]+)/); // Extrage numărul de ore
+            const hoursText = span.textContent.match(/Hours L7:\s*([\d.]+)/);
             if (hoursText && parseFloat(hoursText[1]) < 3) {
                 const row = span.closest('tr');
                 const userElement = row.querySelector('td a');
-                const lastLoginCell = row.querySelectorAll('td')[5]; // Presupunând că a 6-a coloană (index 5) are data
+                const lastLoginCell = row.querySelectorAll('td')[5];
                 const username = userElement ? userElement.textContent.trim() : 'Unknown';
                 const lastLoginRaw = lastLoginCell ? lastLoginCell.textContent.trim() : 'Unknown';
 
                 let daysAgoText = '';
                 if (lastLoginRaw !== 'Unknown') {
-                    // Parsare manuală a datei (format: DD.MM.YYYY HH:mm)
                     const dateParts = lastLoginRaw.match(/(\d{2})\.(\d{2})\.(\d{4}) (\d{2}):(\d{2})/);
                     if (dateParts) {
                         const day = parseInt(dateParts[1], 10);
-                        const month = parseInt(dateParts[2], 10) - 1; // Luna începe de la 0 în JS
+                        const month = parseInt(dateParts[2], 10) - 1;
                         const year = parseInt(dateParts[3], 10);
                         const hour = parseInt(dateParts[4], 10);
                         const minute = parseInt(dateParts[5], 10);
@@ -49,36 +47,28 @@ spans.forEach((span) => {
 
 setTimeout(() => {
     console.log('Utilizatori cu sub 3 ore în ultimele 7 zile:', under5Hours);
-    
-    // Formatează mesajele pentru Discord
     const messageParts = [];
     let currentMessage = '';
-
     under5Hours.forEach(player => {
         const playerInfo = `**Nume:** ${player.username}\n**Ore jucate în ultimele 7 zile:** ${player.hours}\n**Ultima conectare:** ${player.lastLogin}\n\n`;
-
         if ((currentMessage + playerInfo).length > 2000) {
-            // Dacă adăugarea acestui text ar depăși limita, trimite mesajul curent și începe unul nou
             messageParts.push(currentMessage);
             currentMessage = playerInfo;
         } else {
-            // Adaugă informația la mesajul curent
             currentMessage += playerInfo;
         }
     });
-
-    // Adaugă ultimul mesaj dacă există
     if (currentMessage) {
         messageParts.push(currentMessage);
     }
-
-    // Trimite fiecare parte a mesajului pe Discord
     messageParts.forEach((message, index) => {
         fetch(webhookUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                content: `📋 **Lista parțială ${index + 1}:**\n\n${message}`
+                username: 'Meow - Activity members',
+                avatar_url: 'https://cdn.discordapp.com/attachments/1272194216365260830/1301601010317525042/Untitled-1.png?ex=674f41e7&is=674df067&hm=3f22cd576ba8e5a6f86ad5329cbfda48ddf8ebad42802303d789aebae25a81af&',
+                content: `📋 **Lista membrilor inactivi in clan #${index + 1}:**\n\n${message}`
             })
         })
         .then(response => {
