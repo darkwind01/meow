@@ -1,7 +1,8 @@
 const spans = document.querySelectorAll('.clanStats span[id^="stats-"]');
 let delay = 0;
 const under5Hours = []; // Lista pentru utilizatorii cu sub 3 ore
-const webhookUrl = 'https://discord.com/api/webhooks/1313218493721608203/Q9lErbjaX--bMoSRmYrmF1GS1zgjprU4nyWYtXBDtP5crvycm1MUQvjLBxkdL3_T7QA4'; // Înlocuiește cu URL-ul webhookului tău
+const urlParams = new URLSearchParams(window.location.search);
+const webhookUrl = urlParams.get('webhook') || '#'; // URL-ul implicit dacă nu este trecut un parametru webhook
 
 spans.forEach((span) => {
     setTimeout(() => {
@@ -79,7 +80,7 @@ setTimeout(() => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                content: `📋 **Lista parțială ${index + 1}:**\n\n${message}`
+                content: `📋 **Lista cu jucatorii inactivi #${index + 1}:**\n\n${message}`
             })
         })
         .then(response => {
