@@ -51,29 +51,45 @@ spans.forEach((span) => {
 setTimeout(() => {
     console.log('Utilizatori cu sub 3 ore în ultimele 7 zile:', under5Hours);
     
-    // Formatează mesajul pentru Discord
-    const message = under5Hours.map(player => 
-        `**Nume:** ${player.username}\n**Ore jucate în ultimele 7 zile:** ${player.hours}\n**Ultima conectare:** ${player.lastLogin}\n`
-    ).join('\n');
+    // Formatează mesajele pentru Discord
+    const messageParts = [];
+    let currentMessage = '';
 
-    // Trimite mesajul prin webhook
-    if (message) {
+    under5Hours.forEach(player => {
+        const playerInfo = `**Nume:** ${player.username}\n**Ore jucate în ultimele 7 zile:** ${player.hours}\n**Ultima conectare:** ${player.lastLogin}\n\n`;
+
+        if ((currentMessage + playerInfo).length > 2000) {
+            // Dacă adăugarea acestui text ar depăși limita, trimite mesajul curent și începe unul nou
+            messageParts.push(currentMessage);
+            currentMessage = playerInfo;
+        } else {
+            // Adaugă informația la mesajul curent
+            currentMessage += playerInfo;
+        }
+    });
+
+    // Adaugă ultimul mesaj dacă există
+    if (currentMessage) {
+        messageParts.push(currentMessage);
+    }
+
+    // Trimite fiecare parte a mesajului pe Discord
+    messageParts.forEach((message, index) => {
         fetch(webhookUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                content: `📋 **Lista jucătorilor cu sub 3 ore în ultimele 7 zile:**\n\n${message}`
+                content: `📋 **Lista parțială ${index + 1}:**\n\n${message}`
             })
         })
         .then(response => {
             if (response.ok) {
-                console.log('Mesaj trimis cu succes pe Discord!');
+                console.log(`Mesajul ${index + 1} trimis cu succes pe Discord!`);
             } else {
-                console.error('Eroare la trimiterea mesajului:', response.statusText);
+                console.error(`Eroare la trimiterea mesajului ${index + 1}:`, response.statusText);
             }
         })
         .catch(error => console.error('Eroare:', error));
-    } else {
-        console.log('Nicio informație de trimis.');
-    }
+    });
 }, delay + 1000);
+
